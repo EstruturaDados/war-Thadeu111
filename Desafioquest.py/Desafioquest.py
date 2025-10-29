@@ -1,65 +1,72 @@
-#include  <stdio.h>
+import random
 
-def introducao():
-    print("🕵️‍♂️ Bem-vindo ao Detective Quest!")
-    print("Você é um detetive e precisa resolver um misterioso caso.")
-    print("Preste atenção nas pistas e faça escolhas inteligentes!\n")
+# Classe que representa um território
+class Territorio:
+    def __init__(self, nome, cor, tropas):
+        self.nome = nome
+        self.cor = cor
+        self.tropas = tropas
 
-def escolher_local():
-    while True:
-        print("Escolha onde investigar primeiro:")
-        print("1 - Biblioteca")
-        print("2 - Cozinha")
-        print("3 - Jardim")
-        escolha = input("Digite o número da sua escolha: ")
-        if escolha in ["1", "2", "3"]:
-            return escolha
-        else:
-            print("❌ Escolha inválida! Tente novamente.\n")
+# Função para cadastrar territórios
+def cadastrar_territorios():
+    n = int(input("Quantos territórios deseja cadastrar? "))
+    mapa = []
 
-def analisar_pista(escolha):
-    if escolha == "1":
-        print("\nVocê encontrou uma pista: um livro aberto com anotações suspeitas.")
-        print("Parece que alguém deixou um recado secreto aqui.\n")
-        return "livro"
-    elif escolha == "2":
-        print("\nVocê encontrou um utensílio sujo de tinta vermelha.")
-        print("Pode estar relacionado ao crime!\n")
-        return "utensilio"
-    elif escolha == "3":
-        print("\nVocê encontrou pegadas perto da árvore antiga.")
-        print("Talvez elas levem até o culpado!\n")
-        return "pegadas"
+    for i in range(n):
+        print(f"\n=== Cadastro do Território {i + 1} ===")
+        nome = input("Nome: ")
+        cor = input("Cor (ex: Vermelho, Azul, Verde): ")
+        tropas = int(input("Quantidade de tropas: "))
+        mapa.append(Territorio(nome, cor, tropas))
 
-def decidir_final(pista):
-    while True:
-        print("Hora de tomar uma decisão final para resolver o caso!")
-        print("Escolha quem você acha que é o culpado:")
-        print("1 - O mordomo")
-        print("2 - A governanta")
-        print("3 - O jardineiro")
-        final = input("Digite o número da sua escolha: ")
-        
-        if final not in ["1", "2", "3"]:
-            print("❌ Escolha inválida! Tente novamente.\n")
-            continue
+    return mapa
 
-        if pista == "livro" and final == "2":
-            print("\n🎉 Parabéns! Você resolveu o caso corretamente!")
-        elif pista == "utensilio" and final == "1":
-            print("\n🎉 Parabéns! Você resolveu o caso corretamente!")
-        elif pista == "pegadas" and final == "3":
-            print("\n🎉 Parabéns! Você resolveu o caso corretamente!")
-        else:
-            print("\n❌ Ops! Você escolheu a pessoa errada. O caso continua misterioso!")
-        break
+# Exibir territórios cadastrados
+def exibir_territorios(mapa):
+    print("\n===== LISTA DE TERRITÓRIOS =====")
+    for i, t in enumerate(mapa):
+        print(f"{i + 1} - {t.nome} | Cor: {t.cor} | Tropas: {t.tropas}")
 
+# Função de ataque entre dois territórios
+def atacar(atacante, defensor):
+    if atacante.cor == defensor.cor:
+        print("\n⚠️  Você não pode atacar um território da mesma cor!")
+        return
+
+    print(f"\n🎯 {atacante.nome} ({atacante.cor}) está atacando {defensor.nome} ({defensor.cor})!")
+
+    dado_atacante = random.randint(1, 6)
+    dado_defensor = random.randint(1, 6)
+
+    print(f"🎲 Dado atacante: {dado_atacante}")
+    print(f"🎲 Dado defensor: {dado_defensor}")
+
+    if dado_atacante > dado_defensor:
+        print(f"\n🔥 Ataque bem-sucedido! {atacante.nome} conquistou {defensor.nome}!")
+        defensor.cor = atacante.cor
+        defensor.tropas = atacante.tropas // 2
+        print(f"Novo dono: {defensor.cor} | Tropas transferidas: {defensor.tropas}")
+    else:
+        print(f"\n💥 Ataque falhou! {defensor.nome} resistiu ao ataque!")
+        if atacante.tropas > 0:
+            atacante.tropas -= 1
+
+# Programa principal
 def main():
-    introducao()
-    escolha = escolher_local()
-    pista = analisar_pista(escolha)
-    decidir_final(pista)
-    print("\nObrigado por jogar Detective Quest! Até a próxima!")
+    random.seed()  # Garante aleatoriedade
+    mapa = cadastrar_territorios()
+    exibir_territorios(mapa)
+
+    atacante_idx = int(input("\nEscolha o número do território atacante: ")) - 1
+    defensor_idx = int(input("Escolha o número do território defensor: ")) - 1
+
+    if atacante_idx < 0 or defensor_idx < 0 or atacante_idx >= len(mapa) or defensor_idx >= len(mapa):
+        print("⚠️  Território inválido!")
+    else:
+        atacar(mapa[atacante_idx], mapa[defensor_idx])
+
+    print("\n=== Estado final dos territórios ===")
+    exibir_territorios(mapa)
 
 if __name__ == "__main__":
     main()
